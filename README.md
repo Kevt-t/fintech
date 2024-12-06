@@ -35,7 +35,7 @@ A simple web application for tracking financial transactions like deposits and w
 - cd fintech
 
 2. **Install dependencies**:
-- npm install mysql2 sequelize nodemon dotenv bcrypt jsonwebtoken
+- `npm install mysql2 sequelize nodemon dotenv bcrypt jsonwebtoken`
 
 3. **Set up the database**: 
 - Create a new MySQL database.
@@ -45,16 +45,15 @@ A simple web application for tracking financial transactions like deposits and w
 - Create a new MySQL database.
 - In the `.env` file, configure the database connection:
 
-```
-plaintext
+```plaintext
 DB_HOST=localhost
 DB_USER=root
 DB_PASSWORD=your_password
 DB_NAME=fintech_db
-'''
+```
 
 4. **Run the backend server**:
-'npm run dev'
+`npm run dev`
 
 # Frontend setup
 
@@ -74,7 +73,7 @@ The rest is WIP
 
 #Project Structure
 
-'''
+```
 fintech/
 │
 ├── config/
@@ -91,7 +90,8 @@ fintech/
 ├── .env                          # Environment variables
 ├── index.js                      # Main entry point of the backend
 ├── package.json                  # Project metadata and dependencies
-└── package-lock.json             # Locked dependencies version'''
+└── package-lock.json             # Locked dependencies version
+```
 
 
 
