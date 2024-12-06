@@ -59,7 +59,7 @@ DB_NAME=fintech_db
 
 1. **Navigate to the front end directory**: 'cd fintech-frontend'
 
-2. **Open 'index.html' in your browser**:
+2. **Open `index.html` in your browser**:
 - You can either open the file directly in your browser or run a local server (for example, using the Live Server extension in Visual Studio Code).
 
 3. **Connect the frontend to the backend**:
@@ -71,7 +71,7 @@ DB_NAME=fintech_db
 
 The rest is WIP
 
-#Project Structure
+# Project Structure
 
 ```
 fintech/
