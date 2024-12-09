@@ -10,7 +10,7 @@ const signUp = async (req, res) => {
     const newUser = await User.create({ username, email, password });
     res.status(201).json(newUser); // Responding with the newly created user
   } catch (error) {
-    res.status(500).json({ message: 'Error signing up user', error });  // Error handling
+    res.status(500). json({ message: 'Error signing up user', error });  // Error handling
   }
 };
 
