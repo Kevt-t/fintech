@@ -43,7 +43,7 @@ router.post('/login', async (req, res) => {
   try {
     // Validate input
     if (!email || !password) {
-      return res.status(400).send('All fields are required.');
+      return rhes.status(400).send('All fields are required.');
     }
 
     // Find user by email
