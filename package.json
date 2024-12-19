@@ -1,6 +1,6 @@
 {
-  "type":"module",
-  "name": "fintech-1",
+  "type": "module",
+  "name": "fintech",
   "version": "1.0.0",
   "description": "A simple web application for tracking financial transactions like deposits and withdrawals. Users can create an account, log in, and manage their balance through deposits and withdrawals.",
   "main": "index.js",
@@ -12,13 +12,18 @@
   "license": "ISC",
   "dependencies": {
     "bcrypt": "^5.1.1",
+    "bootstrap": "^5.3.3",
+    "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",
     "dotenv": "^16.4.7",
     "ejs": "^3.1.10",
     "express": "^4.21.2",
+    "express-session": "^1.18.1",
     "jsonwebtoken": "^9.0.2",
     "mysql2": "^3.11.5",
-    "nodemon": "^3.1.7",
     "sequelize": "^6.37.5"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.9"
   }
 }

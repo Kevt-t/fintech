@@ -26,6 +26,12 @@ const User = sequelize.define('User', {
   },
 });
 
+//Method to get user balance as well as transactions
+User.prototype.getBalanceAndTransactions = async function () {
+  const transactions = await this.getTransactions({ order: [['createdAt', 'DESC']] });
+  return { balance: this.balance, transactions };
+};
+
 // Hook for hashing the password before saving
 User.beforeCreate(async (user) => {
   const salt = await bcrypt.genSalt(10);
