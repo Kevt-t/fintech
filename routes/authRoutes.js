@@ -1,43 +1,73 @@
-import bcrypt from 'bcrypt'; // To compare the hashed passwords
-import jwt from 'jsonwebtoken'; // To generate JWT tokens
-import User from '../models/user.js';  // Importing User model to interact with the User table
+import express from 'express';
+import bcrypt from 'bcrypt';
+import jwt from 'jsonwebtoken';
+import User from '../models/user.js';
 
-// Sign up route handler 
-const signUp = async (req, res) => {
-  const { username, email, password } = req.body;  // Destructuring request body for username, email, and password
+const router = express.Router();
+
+// Sign up route
+router.post('/signup', async (req, res) => {
+  const { username, email, password } = req.body;
+
   try {
-// Creating a new user in the database
-    const newUser = await User.create({ username, email, password });
-    res.status(201).json(newUser); // Responding with the newly created user
+    // Validate input
+    if (!username || !email || !password) {
+      return res.status(400).send('All fields are required.');
+    }
+
+    if (password.length < 8) {
+      return res.status(400).send('Password must be at least 8 characters long.');
+    }
+
+    // Check for existing user
+    const existingUser = await User.findOne({ where: { email } });
+    if (existingUser) {
+      return res.status(400).send('Email is already registered.');
+    }
+
+    // Create user and hash password (done via Sequelize hook)
+    await User.create({ username, email, password });
+
+    // Redirect to login page
+    res.redirect('/login');
   } catch (error) {
-    res.status(500).json({ message: 'Error signing up user', error });  // Error handling
+    console.error('Error during signup:', error);
+    res.status(500).send('Internal server error.');
   }
-};
+});
 
-// Login user
-const login = async (req, res) => {
-  const { email, password } = req.body; // Destructuring request body for email and password 
-  
+// Login route
+router.post('/login', async (req, res) => {
+  const { email, password } = req.body;
+
   try {
-  // Finding the user by email in the database
+    // Validate input
+    if (!email || !password) {
+      return res.status(400).send('All fields are required.');
+    }
+
+    // Find user by email
     const user = await User.findOne({ where: { email } });
     if (!user) {
-      return res.status(404).json({ message: 'User not found' });  // If user doesn't exist
+      return res.status(404).send('User not found.');
     }
 
-// Comparing the provided password with the hashed password in the database
+    // Validate password
     const isValid = await bcrypt.compare(password, user.password);
     if (!isValid) {
-      return res.status(400).json({ message: 'Invalid credentials' });
+      return res.status(400).send('Invalid credentials.');
     }
 
-// Generating a JWT token for the authenticated user
+    // Generate JWT
     const token = jwt.sign({ userId: user.id }, process.env.SECRET_KEY, { expiresIn: '1h' });
-    res.json({ token });
-  } catch (error) {
-    res.status(500).json({ message: 'Error logging in', error });
-  }
-};
 
-// Exporting the routes for use in other parts of the application
-export { signUp, login };
+    // Redirect to dashboard or send token
+    res.redirect('/dashboard'); // Option 1: Redirect for form-based flow
+    // res.json({ message: 'Login successful', token }); // Option 2: Send token for API-based flow
+  } catch (error) {
+    console.error('Error during login:', error);
+    res.status(500).send('Internal server error.');
+  }
+});
+
+export default router;

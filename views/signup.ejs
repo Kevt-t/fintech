@@ -4,19 +4,26 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sign Up</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        form { max-width: 400px; margin: auto; }
+        label, input { display: block; width: 100%; margin-bottom: 10px; }
+        button { width: 100%; padding: 10px; }
+    </style>
 </head>
 <body>
     <h1>Sign Up</h1>
     <form action="/signup" method="POST">
         <label for="username">Username:</label>
         <input type="text" name="username" id="username" required>
-        <br>
+        
         <label for="email">Email:</label>
         <input type="email" name="email" id="email" required>
-        <br>
+        
         <label for="password">Password:</label>
         <input type="password" name="password" id="password" required>
-        <br>
+        <small>Password must be at least 8 characters.</small>
+        
         <button type="submit">Sign Up</button>
     </form>
 </body>
