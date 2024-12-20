@@ -1,70 +1,59 @@
-  // Importing required dependencies
-  import User from '../models/user.js';  // Importing User model to interact with the User table
-  import Transaction from '../models/transaction.js'; // Importing Transaction model to log transactions
+import express from 'express';
+import { Transaction, User } from '../models/associations.js';
+import authenticateToken from '../middleware/authMiddleware.js';
 
+const router = express.Router();
 
-  // Deposit route handler
-  const deposit = async (req, res) => { 
-    const { userId, amount } = req.body; // Destructuring request body for user ID and deposit amount
+// Create a transaction
+router.post('/', authenticateToken, async (req, res) => {
+  const { amount, type } = req.body;
+  const userId = req.user.userId;
 
-    try {
-  // Finding the user by userId
-      const user = await User.findByPk(userId); 
-      if (!user) {
-        return res.status(404).json({ message: 'User not found' });
-      }
+  try {
+    const user = await User.findByPk(userId);
+    if (!user) return res.status(404).send('User not found.');
 
-  // Adding the deposit amount to the user's balance
-      user.balance += amount;
-      await user.save();
+    // Ensure balance is treated as a number
+    let currentBalance = parseFloat(user.balance);
 
-  // Creating a transaction record for the deposit
-      await Transaction.create({
-        userId,
-        amount,
-        type: 'deposit', // The type of transaction is 'deposit'
-      });
-
-      res.status(200).json({ message: 'Deposit successful', balance: user.balance }); // if successful
-    } catch (error) {
-      res.status(500).json({ message: 'Error making deposit', error }); // if failure
+    if (type === 'withdraw' || type === 'expense') {
+      if (currentBalance < amount) return res.status(400).send('Insufficient balance.');
+      currentBalance -= parseFloat(amount);
+    } else if (type === 'deposit') {
+      currentBalance += parseFloat(amount);
     }
-  };
 
-  // Withdraw route handler
-  const withdraw = async (req, res) => { 
-    const { userId, amount } = req.body; // Destructuring request body for user ID and withdrawal amount
+    user.balance = currentBalance;
+    const transaction = await Transaction.create({ amount, type, userId });
+    await user.save(); // Save the updated balance
 
-    try {
-      // Finding the user by userId
-      const user = await User.findByPk(userId);
-      if (!user) {
-        return res.status(404).json({ message: 'User not found' }); // If user doesn't exist
-      }
-
-      // Checking if the user has sufficient balance
-      if (user.balance < amount) {
-        return res.status(400).json({ message: 'Insufficient funds' }); // If not enough balance
-      }
-
-          
-      // Subtracting the withdrawal amount from the user's balance
-      user.balance -= amount; 
-      await user.save();  // Saving the updated balance to the database
+    res.status(201).json(transaction);
+  } catch (error) {
+    console.error('Error creating transaction:', error);
+    res.status(500).send('Internal server error.');
+  }
+});
 
 
-      // Creating a transaction record for the withdrawal
-      await Transaction.create({
-        userId,
-        amount,
-        type: 'withdraw', // The type of transaction is 'withdraw'
-      });
 
-      res.status(200).json({ message: 'Withdrawal successful', balance: user.balance }); // If successful
-    } catch (error) {
-      res.status(500).json({ message: 'Error making withdrawal', error }); //If failure
+// Fetch transaction history
+router.get('/', authenticateToken, async (req, res) => {
+  const userId = req.user.userId;
+
+  try {
+    const user = await User.findByPk(userId, {
+      include: { model: Transaction, as: 'transactions', order: [['createdAt', 'DESC']] },
+    });
+
+    if (!user) {
+      return res.status(404).json({ error: 'User not found.' });
     }
-  };
 
-  // Exporting the routes for use in other parts of the application
-  export { deposit, withdraw }; 
+    res.json({ balance: user.balance, transactions: user.transactions });
+  } catch (error) {
+    console.error('Error fetching transactions:', error);
+    res.status(500).json({ error: 'Internal server error.' });
+  }
+});
+
+export default router;

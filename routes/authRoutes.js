@@ -10,7 +10,6 @@ router.post('/signup', async (req, res) => {
   const { username, email, password } = req.body;
 
   try {
-    // Validate input
     if (!username || !email || !password) {
       return res.status(400).send('All fields are required.');
     }
@@ -19,16 +18,14 @@ router.post('/signup', async (req, res) => {
       return res.status(400).send('Password must be at least 8 characters long.');
     }
 
-    // Check if the email is already registered
     const existingUser = await User.findOne({ where: { email } });
     if (existingUser) {
       return res.status(400).send('Email is already registered.');
     }
 
-    // Create a new user (password hashing is handled by Sequelize hook)
-    await User.create({ username, email, password });
+    const newUser = await User.create({ username, email, password });
 
-    // Redirect to the login page
+
     res.redirect('/login');
   } catch (error) {
     console.error('Error during signup:', error);
@@ -55,19 +52,16 @@ router.post('/login', async (req, res) => {
       return res.status(400).send('Invalid credentials.');
     }
 
-    // Generate JWT
     const token = jwt.sign({ userId: user.id, username: user.username }, process.env.SECRET_KEY, {
       expiresIn: '1h',
     });
 
-    // Store token in an HTTP-only cookie
     res.cookie('auth_token', token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
-      maxAge: 3600000, // Token expires in 1 hour
+      maxAge: 3600000,
     });
 
-    // Redirect to the dashboard
     res.redirect('/dashboard');
   } catch (error) {
     console.error('Error during login:', error);
@@ -75,4 +69,10 @@ router.post('/login', async (req, res) => {
   }
 });
 
-export default router; // Default export
+// Logout route
+router.get('/logout', (req, res) => {
+  res.clearCookie('auth_token');
+  res.redirect('/login');
+});
+
+export default router;

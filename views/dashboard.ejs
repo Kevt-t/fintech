@@ -1,73 +1,122 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Dashboard</title>
+  <link rel="stylesheet" href="/styles/dashboard.css"> <!-- Add custom CSS -->
 </head>
 <body>
-  <h1>Welcome, <%= user.username %>!</h1>
+  <header>
+    <h1>Welcome, <%= user.username %>!</h1>
+    <nav>
+      <a href="/auth/logout">Logout</a>
+    </nav>
+  </header>
 
-  <!-- User Balance -->
-  <section>
-    <h2>Your Balance</h2>
-    <p id="user-balance">$0.00</p>
-  </section>
+  <main>
+    <!-- User Balance -->
+    <section id="balance-section">
+      <h2>Your Balance: $<span id="user-balance"><%= user.balance.toFixed(2) %></span></h2>
+    </section>
 
-  <!-- Transaction History -->
-  <section>
-    <h2>Transaction History</h2>
-    <table>
-      <thead>
-        <tr>
-          <th>Date</th>
-          <th>Type</th>
-          <th>Amount</th>
-        </tr>
-      </thead>
-      <tbody id="transaction-history">
-        <!-- Transactions will be dynamically inserted here -->
-      </tbody>
-    </table>
-  </section>
+    <!-- Transaction Form -->
+    <section id="transaction-form-section">
+      <h3>Add a Transaction</h3>
+      <form id="transaction-form">
+        <label for="amount">Amount ($):</label>
+        <input type="number" id="amount" name="amount" step="0.01" min="0.01" required>
 
-  <!-- Add Transaction -->
-  <section>
-    <h2>Add a Transaction</h2>
-    <form id="transaction-form">
-      <label for="type">Transaction Type:</label>
-      <select id="type" required>
-        <option value="deposit">Deposit</option>
-        <option value="withdraw">Withdraw</option>
-        <option value="expense">Expense</option>
-      </select>
+        <label for="type">Transaction Type:</label>
+        <select id="type" name="type" required>
+          <option value="deposit">Deposit</option>
+          <option value="withdraw">Withdraw</option>
+          <option value="expense">Expense</option>
+        </select>
 
-      <label for="amount">Amount:</label>
-      <input type="number" id="amount" min="0.01" step="0.01" required>
+        <button type="submit">Add Transaction</button>
+      </form>
+    </section>
 
-      <button type="submit">Submit</button>
-    </form>
-    <p id="transaction-message"></p>
-  </section>
+    <!-- Transaction History -->
+    <section id="transaction-history-section">
+      <h3>Transaction History</h3>
+      <table id="transaction-history">
+        <thead>
+          <tr>
+            <th>Type</th>
+            <th>Amount</th>
+            <th>Date</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% user.transactions.forEach(transaction => { %>
+            <tr>
+              <td><%= transaction.type.charAt(0).toUpperCase() + transaction.type.slice(1) %></td>
+              <td>$<%= transaction.amount.toFixed(2) %></td>
+              <td><%= new Date(transaction.createdAt).toLocaleString() %></td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </section>
+  </main>
 
-  <!-- Investment Calculator -->
-  <section>
-    <h2>Investment Calculator</h2>
-    <form id="investment-calculator">
-      <label for="capital">Initial Capital:</label>
-      <input type="number" id="capital" required>
+  <footer>
+    <p>&copy; <%= new Date().getFullYear() %> FinTech App</p>
+  </footer>
 
-      <label for="rate">Interest Rate (%):</label>
-      <input type="number" id="rate" step="0.01" required>
+  <!-- Script for handling AJAX form submission -->
+  <script>
+    document.getElementById('transaction-form').addEventListener('submit', async function (event) {
+      event.preventDefault(); // Prevent the form from refreshing the page
 
-      <label for="time">Time (years):</label>
-      <input type="number" id="time" required>
+      const amount = parseFloat(document.getElementById('amount').value);
+      const type = document.getElementById('type').value;
 
-      <button type="submit">Calculate</button>
-    </form>
-    <p id="investment-result"></p>
-  </section>
+      try {
+        // Send the transaction data to the server
+        const response = await fetch('/transactions', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ amount, type }),
+        });
 
-  <!-- Link to JavaScript -->
-  <script src="/js/transaction.js"></script>
-  <script src="/js/dashboard.js"></script>
+        if (response.ok) {
+          const transaction = await response.json();
+
+          // Update the balance
+          const balanceElement = document.getElementById('user-balance');
+          let currentBalance = parseFloat(balanceElement.textContent);
+          if (type === 'deposit') {
+            currentBalance += amount;
+          } else if (type === 'withdraw' || type === 'expense') {
+            currentBalance -= amount;
+          }
+          balanceElement.textContent = currentBalance.toFixed(2);
+
+          // Add the new transaction to the history table
+          const historyTable = document.getElementById('transaction-history').querySelector('tbody');
+          const newRow = document.createElement('tr');
+          newRow.innerHTML = `
+            <td>${type.charAt(0).toUpperCase() + type.slice(1)}</td>
+            <td>$${amount.toFixed(2)}</td>
+            <td>${new Date(transaction.createdAt).toLocaleString()}</td>
+          `;
+          historyTable.prepend(newRow); // Add the new transaction at the top of the table
+
+          // Reset the form
+          document.getElementById('transaction-form').reset();
+        } else {
+          alert('Failed to add transaction. Please try again.');
+        }
+      } catch (error) {
+        console.error('Error submitting transaction:', error);
+        alert('An error occurred. Please try again later.');
+      }
+    });
+  </script>
 </body>
 </html>

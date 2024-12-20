@@ -3,8 +3,11 @@ import dotenv from 'dotenv';
 import cookieParser from 'cookie-parser'; // Import cookie-parser
 import sequelize from './config/db.js'; // Database connection
 import authRoutes from './routes/authRoutes.js'; // Router for authentication routes
-import dashboardRoutes from './routes/dashboardRoutes.js';
+import transactionRoutes from './routes/transactionRoutes.js';
 import authenticateToken from './middleware/authMiddleware.js'; // Import authentication middleware
+import { User, Transaction } from './models/associations.js';
+
+
 import path from 'path';
 import cors from 'cors';
 import { fileURLToPath } from 'url';
@@ -36,13 +39,26 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 // Routes
 app.use('/auth', authRoutes); // Mount authentication routes
-app.use('/dashboard', dashboardRoutes);
-
+app.use('/transactions', transactionRoutes);
 
 // Protected route for the dashboard
-app.get('/dashboard', authenticateToken, (req, res) => {
-  res.render('dashboard', { user: req.user });
+app.get('/dashboard', authenticateToken, async (req, res) => {
+  try {
+    const user = await User.findByPk(req.user.userId, {
+      include: { model: Transaction, as: 'transactions', order: [['createdAt', 'DESC']] },
+    });
+
+    if (!user) {
+      return res.status(404).send('User not found.');
+    }
+
+    res.render('dashboard', { user });
+  } catch (error) {
+    console.error('Error loading dashboard:', error);
+    res.status(500).send('Internal server error.');
+  }
 });
+
 
 // Render views for basic navigation
 app.get('/', (req, res) => res.render('index'));
@@ -70,5 +86,6 @@ const startServer = async () => {
     process.exit(1);
   }
 }
+
 
 startServer();
