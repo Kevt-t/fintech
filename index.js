@@ -9,7 +9,6 @@ import { User, Transaction } from './models/associations.js';
 
 
 import path from 'path';
-import cors from 'cors';
 import { fileURLToPath } from 'url';
 
 // Import associations to ensure all relationships are set up
@@ -28,7 +27,6 @@ const app = express(); // Initialize app
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser()); // Apply cookie-parser globally
-app.use(cors());
 
 // View engine setup for EJS
 app.set('view engine', 'ejs');
