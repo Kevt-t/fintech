@@ -4,52 +4,75 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Dashboard</title>
-  <link rel="stylesheet" href="/styles/dashboard.css"> <!-- Add custom CSS -->
+  <!-- Bootstrap CSS for styling -->
+  <link href="styles/bootstrap.min.css" rel="stylesheet" >
+  <!-- Custom CSS for additional styling -->
+  <link rel="stylesheet" href="/styles/dashboard.css">
 </head>
-<body>
-  <header>
-    <h1>Welcome, <%= user.username %>!</h1>
-    <nav>
-      <a href="/auth/logout">Logout</a>
-    </nav>
+<body class="bg-light">
+  <!-- Header Section -->
+  <header class="bg-primary text-white p-3">
+    <div class="container d-flex justify-content-between align-items-center">
+      <!-- Welcome message displaying the username -->
+      <h1 class="h3">Welcome, <%= user.username %>!</h1>
+      <nav>
+        <!-- Logout button -->
+        <a href="/auth/logout" class="btn btn-light">Logout</a>
+      </nav>
+    </div>
   </header>
 
-  <main>
-    <!-- User Balance -->
-    <section id="balance-section">
-      <h2>Your Balance: $<span id="user-balance"><%= user.balance.toFixed(2) %></span></h2>
+  <!-- Main Content -->
+  <main class="container my-5">
+    <!-- User Balance Section -->
+    <section id="balance-section" class="mb-4">
+      <div class="card text-center">
+        <div class="card-body">
+          <h2>Your Balance</h2>
+          <!-- Displaying the user's balance -->
+          <h3 class="text-success">$<span id="user-balance"><%= user.balance.toFixed(2) %></span></h3>
+        </div>
+      </div>
     </section>
 
-    <!-- Transaction Form -->
-    <section id="transaction-form-section">
+    <!-- Transaction Form Section -->
+    <section id="transaction-form-section" class="mb-4">
       <h3>Add a Transaction</h3>
-      <form id="transaction-form">
-        <label for="amount">Amount ($):</label>
-        <input type="number" id="amount" name="amount" step="0.01" min="0.01" required>
-
-        <label for="type">Transaction Type:</label>
-        <select id="type" name="type" required>
-          <option value="deposit">Deposit</option>
-          <option value="withdraw">Withdraw</option>
-          <option value="expense">Expense</option>
-        </select>
-
-        <button type="submit">Add Transaction</button>
+      <form id="transaction-form" class="row g-3">
+        <div class="col-md-6">
+          <!-- Input for transaction amount -->
+          <label for="amount" class="form-label">Amount ($):</label>
+          <input type="number" id="amount" name="amount" step="0.01" min="0.01" class="form-control" required>
+        </div>
+        <div class="col-md-6">
+          <!-- Dropdown for selecting transaction type -->
+          <label for="type" class="form-label">Transaction Type:</label>
+          <select id="type" name="type" class="form-select" required>
+            <option value="deposit">Deposit</option>
+            <option value="withdraw">Withdraw</option>
+            <option value="expense">Expense</option>
+          </select>
+        </div>
+        <div class="col-12">
+          <!-- Submit button for the transaction form -->
+          <button type="submit" class="btn btn-primary w-100">Add Transaction</button>
+        </div>
       </form>
     </section>
 
-    <!-- Transaction History -->
+    <!-- Transaction History Section -->
     <section id="transaction-history-section">
       <h3>Transaction History</h3>
-      <table id="transaction-history">
+      <table class="table table-striped">
         <thead>
           <tr>
-            <th>Type</th>
-            <th>Amount</th>
-            <th>Date</th>
+            <th scope="col">Type</th>
+            <th scope="col">Amount</th>
+            <th scope="col">Date</th>
           </tr>
         </thead>
-        <tbody>
+        <tbody id="transaction-history-body">
+          <!-- Loop through user transactions and display them -->
           <% user.transactions.forEach(transaction => { %>
             <tr>
               <td><%= transaction.type.charAt(0).toUpperCase() + transaction.type.slice(1) %></td>
@@ -59,14 +82,20 @@
           <% }) %>
         </tbody>
       </table>
+      <!-- Message if no transactions are found -->
+      <% if (user.transactions.length === 0) { %>
+        <p class="text-muted text-center">No transactions found.</p>
+      <% } %>
     </section>
   </main>
 
-  <footer>
+  <!-- Footer Section -->
+  <footer class="bg-light text-center py-3">
+    <!-- Copyright notice -->
     <p>&copy; <%= new Date().getFullYear() %> FinTech App</p>
   </footer>
 
-  <!-- Script for handling AJAX form submission -->
+  <!-- JavaScript for handling transaction form submission -->
   <script>
     document.getElementById('transaction-form').addEventListener('submit', async function (event) {
       event.preventDefault(); // Prevent the form from refreshing the page
@@ -87,27 +116,39 @@
         if (response.ok) {
           const transaction = await response.json();
 
-          // Update the balance
+          // Update the balance displayed on the page
           const balanceElement = document.getElementById('user-balance');
           let currentBalance = parseFloat(balanceElement.textContent);
+          let newBalance = currentBalance;
+
           if (type === 'deposit') {
-            currentBalance += amount;
+            newBalance += amount;
+            // Highlight for positive change
+            balanceElement.classList.add('balance-highlight-positive');
           } else if (type === 'withdraw' || type === 'expense') {
-            currentBalance -= amount;
+            newBalance -= amount;
+            // Highlight for negative change
+            balanceElement.classList.add('balance-highlight-negative');
           }
-          balanceElement.textContent = currentBalance.toFixed(2);
+
+          balanceElement.textContent = newBalance.toFixed(2);
+
+          // Remove the highlight after a short delay
+          setTimeout(() => {
+            balanceElement.classList.remove('balance-highlight-positive', 'balance-highlight-negative');
+          }, 1000); // 1 second delay
 
           // Add the new transaction to the history table
-          const historyTable = document.getElementById('transaction-history').querySelector('tbody');
+          const historyBody = document.getElementById('transaction-history-body');
           const newRow = document.createElement('tr');
           newRow.innerHTML = `
             <td>${type.charAt(0).toUpperCase() + type.slice(1)}</td>
             <td>$${amount.toFixed(2)}</td>
             <td>${new Date(transaction.createdAt).toLocaleString()}</td>
           `;
-          historyTable.prepend(newRow); // Add the new transaction at the top of the table
+          historyBody.prepend(newRow);
 
-          // Reset the form
+          // Reset the form for new entries
           document.getElementById('transaction-form').reset();
         } else {
           alert('Failed to add transaction. Please try again.');
