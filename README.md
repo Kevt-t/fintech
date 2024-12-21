@@ -1,11 +1,13 @@
-# FinTech Transaction Tracking App
+# FinTech Transaction Tracker
 
-A simple web application for tracking financial transactions like deposits and withdrawals. Users can create an account, log in, and manage their balance through deposits and withdrawals.
+A modern web application to help users manage their finances effectively. The FinTech Transaction Tracker allows users to view their balance, record transactions (deposits, withdrawals, and expenses), and use an investment calculator for financial planning.
 
 ### Features
-- **User Authentication**: Users can sign up, log in, and manage their accounts.
+- **User Authentication**:  Users can sign up, log in, and manage their accounts securely.
 - **Transaction Management**: Users can make deposits and withdrawals to/from their balance.
-- **Secure Authentication**: Passwords are securely hashed using bcrypt, and JWT tokens are used for authentication.
+- **Investment Calculator**: Users can calculate the future value of their investments based on the principal amount, interest rate, and time period.
+- **Responsive Design**: A user-friendly interface built with Bootstrap ensures compatibility across devices.
+- **Secure Architecture:**: Backend security includes hashed passwords, token-based authentication, and sanitized inputs.
 
 ### Tech Stack
 
@@ -16,14 +18,16 @@ A simple web application for tracking financial transactions like deposits and w
   - mySQL (database)
   - JWT (for authentication)
   - bcrypt (for password hashing)
+  - cookie-parser (for parsing cookies in requests)
 - **Frontend**
   - HTML
   - CSS
   - JavaScript (using Fetch API to interact with the backend)
+  - EJS (Embedded JavaScript)
+  - CSS (Bootstrap for styling)
 - **Dev Tools**
-  - Nodemon (for hot reloading the server during development)
+  - Nodemon (Auto-restart the server during development.)
   - dotenv (for managing environment variables)
-  - CORS (for enabling cross-origin resource sharing)
 
 # Get Started
 
@@ -34,87 +38,73 @@ A simple web application for tracking financial transactions like deposits and w
 ### Installing
 1. **Clone the repository**: 
 - `git clone https://github.com/your-username/fintech.git`
-- `cd fintech`
+
 
 2. **Install dependencies**:
-- `npm install mysql2 sequelize nodemon dotenv bcrypt jsonwebtoken`
+- `npm install bcrypt bootstrap cookie-parser dotenv ejs express jsonwebtoken mysql2 sequelize`
 
 3. **Set up the database**: 
 - Create a new MySQL database.
-- In the `.env` file, configure the database connection:
-
-3. **Set up the database**: 
-- Create a new MySQL database.
-- In the `.env` file, configure the database connection:
+- In the `.env` file, configure the database connection (don't leave out SECRET_KEY for JWT):
 
 ```plaintext
-DB_HOST=localhost
-DB_USER=root
-DB_PASSWORD=your_password
-DB_NAME=fintech_db
+DB_NAME=
+DB_USER=
+DB_PASSWORD=
+DB_HOST= 
+PORT= 
+SECRET_KEY=
 ```
 
 4. **Run the backend server**:
-`npx nodemon index.js
-`
+`npm start`
 
-# Frontend setup
-
-1. **Navigate to the front end directory**:
-- `cd fintech-frontend`
-
-2. **Open `index.html` in your browser**:
-- You can either open the file directly in your browser or run a local server (for example, using the Live Server extension in Visual Studio Code).
-
-3. **Connect the frontend to the backend**:
-- Ensure that your frontend is making requests to http://localhost:3000/signup and other relevant backend endpoints.
-
-### Run the backend server
-- `npx nodemon index.js`
-
-
-### Usage
-- Enter a username, email, and password, then click "Sign Up".
-- Check mySQL to confirm data upload
-
-The rest is WIP
 
 # Project Structure
 
 ```
-fintech/
+fintechV2/
 │
-├── config/
-│   └── db.js                    # Database connection setup
-### Cors (Cross Origin Resource Sharing)
-│
-├── models/
-│   ├── Transaction.js            # Transaction model
-│   └── User.js                   # User model
-│
-├── routes/
-│   ├── authRoutes.js             # Authentication routes (signup, login)
-│   └── transactionRoutes.js      # Transaction routes (deposit, withdraw)
-│
-├── .env                          # Environment variables
-├── index.js                      # Main entry point of the backend
-├── package.json                  # Project metadata and dependencies
-└── package-lock.json             # Locked dependencies version
+├── fintech/
+│   ├── config/
+│   │   └── db.js                    # Database connection setup
+│   │
+│   ├── models/
+│   │   ├── Transaction.js            # Transaction model
+│   │   └── User.js                   # User model
+|   |   └── associations.js           # Associations between models
+│   │
+│   ├── routes/
+│   │   ├── authRoutes.js             # Authentication routes (signup, login)
+│   │   └── transactionRoutes.js      # Transaction routes (deposit, withdraw)
+│   │   
+│   ├── middleware/
+│   │   └── authMiddleware.js          # Middleware for token authentication
+│   │
+│   ├── public/
+│   │   ├── styles/
+│   │   │   ├── dashboard.css          # CSS for transaction update functionality
+│   │   │   └── bootstrap.min.css      # Bootstrap CSS
+│   │   └── script/
+│   │       └── dashboard.js           # Not used right now, meant to be external script
+│   │
+│   ├── views/
+│   │   ├── index.ejs                  # Main page view
+│   │   ├── signup.ejs                 # Signup page view
+│   │   ├── login.ejs                  # Login page view
+│   │   └── dashboard.ejs              # Dashboard page view
+│   │
+│   ├── index.js                       # Main entry point of the backend
+│   ├── package.json                   # Project metadata and dependencies
+│   └── .env                           # Environment variables
 ```
 # Notes
 
-### 1. Cors (Cross Origin Resource Sharing)
-- Since the frontend and backend are running on different ports during development (e.g., frontend on localhost:5500 and backend on localhost:3000), CORS is required to allow the frontend to make API requests to the backend.
-
-- CORS is enabled in the backend by using the cors package. If you want to remove or modify the CORS settings, you can uninstall the cors package and adjust the index.js file accordingly. 
-
-### 2. Database Setup
+### 1. Database Setup
 - Make sure you create a MySQL database (e.g., fintech_db) before running the backend. You can update the .env file with the appropriate database credentials.
 
-### 3. JWT Authentication
-- When logging in, a JWT (JSON Web Token) is returned. You can use this token to access protected routes or implement additional features like token expiration and refresh tokens.
-
-
+### 2. JWT Authentication
+- When logging in, a JWT (JSON Web Token) is returned. The logout button clears the JWT.
 
 
 
