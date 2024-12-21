@@ -37,7 +37,7 @@ A modern web application to help users manage their finances effectively. The Fi
 
 ### Installing
 1. **Clone the repository**: 
-- `git clone https://github.com/your-username/fintech.git`
+- `git clone https://github.com/kevt-t/fintech.git`
 
 
 2. **Install dependencies**:
