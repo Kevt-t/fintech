@@ -1,0 +1,14 @@
+/* Highlight for positive changes (e.g., deposits) */
+.balance-highlight-positive {
+    background-color: #d4edda; /* Light green */
+    color: #155724; /* Dark green */
+    transition: background-color 0.5s ease;
+  }
+  
+  /* Highlight for negative changes (e.g., withdrawals or expenses) */
+  .balance-highlight-negative {
+    background-color: #f8d7da; /* Light red */
+    color: #721c24; /* Dark red */
+    transition: background-color 0.5s ease;
+  }
+  
