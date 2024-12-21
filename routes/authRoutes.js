@@ -1,7 +1,7 @@
 import express from 'express'; // Importing the express framework
 import jwt from 'jsonwebtoken'; // Importing jsonwebtoken for token generation
 import bcrypt from 'bcrypt'; // Importing bcrypt for password hashing
-import User from '../models/user.js'; // Importing the User model
+import User from '../models/User.js'; // Importing the User model
 
 const router = express.Router(); // Creating a new router instance
 
