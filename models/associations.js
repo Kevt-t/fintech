@@ -1,9 +1,9 @@
-import User from './user.js'; // Import the User model from the user.js file
-import Transaction from './transaction.js'; // Import the Transaction model from the transaction.js file
+import User from './User.js'; // Import the User model from the user.js file
+import Transaction from './Transaction.js'; // Import the Transaction model from the transaction.js file
 
 
 // Define a one-to-many relationship where a User can have multiple Transactions
-User .hasMany(Transaction, { 
+User.hasMany(Transaction, { 
     // Specify the foreign key in the Transaction model that links to the User
     foreignKey: 'userId', 
     // Create an alias for the relationship to access transactions via user.transactions
