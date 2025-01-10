@@ -16,17 +16,4 @@ const sequelize = new Sequelize(
   }
 );
 
-// Centralized function to connect to the database (optional)
-const connectToDatabase = async () => {
-  try {
-    await sequelize.authenticate();
-    console.log('Database connection established successfully.');
-  } catch (err) {
-    console.error('Unable to connect to the database:', err);
-    process.exit(1); // Exit the application if DB connection fails
-  }
-};
-
-// Export the sequelize instance and optional connection function
-export { sequelize, connectToDatabase };
 export default sequelize;
