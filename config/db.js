@@ -1,8 +1,5 @@
 import { Sequelize } from 'sequelize';  // Sequelize for interacting with MySQL
-import dotenv from 'dotenv'; // To load environment variables from the .env file
-
-// Load environment variables from .env
-dotenv.config();
+import 'dotenv/config'; // To load environment variables from the .env file
 
 // Create Sequelize instance with MySQL configuration
 const sequelize = new Sequelize(
