@@ -1,5 +1,5 @@
 import express from 'express';
-import dotenv from 'dotenv';
+import 'dotenv';
 import cookieParser from 'cookie-parser'; // Import cookie-parser
 import sequelize from './config/db.js'; // Database connection
 import authRoutes from './routes/authRoutes.js'; // Router for authentication routes
@@ -17,9 +17,6 @@ import './models/associations.js';
 // Setup for __dirname in ES modules
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-
-// Load environment variables
-dotenv.config();
 
 const app = express(); // Initialize app
 
