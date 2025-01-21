@@ -1,31 +1,26 @@
 import express from 'express';
-import 'dotenv';
-import cookieParser from 'cookie-parser'; // Import cookie-parser
-import sequelize from './config/db.js'; // Database connection
-import authRoutes from './routes/authRoutes.js'; // Router for authentication routes
-import transactionRoutes from './routes/transactionRoutes.js';
-import authenticateToken from './middleware/authMiddleware.js'; // Import authentication middleware
-import { User, Transaction } from './models/associations.js';
-
-
+import cookieParser from 'cookie-parser';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import sequelize from './config/db.js'; // Import database connection
+import authRoutes from './routes/authRoutes.js';
+import transactionRoutes from './routes/transactionRoutes.js';
+import authenticateToken from './middleware/authMiddleware.js';
+import { User, Transaction } from './models/associations.js'; // Ensure associations are set up
 
-// Import associations to ensure all relationships are set up
-import './models/associations.js';
-
-// Setup for __dirname in ES modules
+// Setup __dirname for ES Modules
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-const app = express(); // Initialize app
+const app = express();
+const PORT = process.env.PORT || 3000;
 
-// Middleware for parsing JSON, URL-encoded form data, and cookies
+// Middleware
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(cookieParser()); // Apply cookie-parser globally
+app.use(cookieParser());
 
-// View engine setup for EJS
+// View engine setup
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 
@@ -33,10 +28,10 @@ app.set('views', path.join(__dirname, 'views'));
 app.use(express.static(path.join(__dirname, 'public')));
 
 // Routes
-app.use('/auth', authRoutes); // Mount authentication routes
+app.use('/auth', authRoutes);
 app.use('/transactions', transactionRoutes);
 
-// Protected route for the dashboard
+// Protected route for dashboard
 app.get('/dashboard', authenticateToken, async (req, res) => {
   try {
     const user = await User.findByPk(req.user.userId, {
@@ -54,33 +49,14 @@ app.get('/dashboard', authenticateToken, async (req, res) => {
   }
 });
 
-
-// Render views for basic navigation
+// Basic navigation views
 app.get('/', (req, res) => res.render('index'));
 app.get('/signup', (req, res) => res.render('signup'));
 app.get('/login', (req, res) => res.render('login'));
 
-// Start server and synchronize database
-const startServer = async () => {
-  try {
-    // Authenticate database connection
-    await sequelize.authenticate();
-    console.log('Database connection successful.');
-
-    // Synchronize all models (ensure associations are loaded first)
-    await sequelize.sync({ alter: true }); // Use { alter: true } to update schema without dropping data
-    console.log('Database synced successfully.');
-
-    // Start server
-    const PORT = process.env.PORT || 3000;
-    app.listen(PORT, () => {
-      console.log(`Server running at http://localhost:${PORT}`);
-    });
-  } catch (error) {
-    console.error('Error starting the server:', error);
-    process.exit(1);
-  }
-}
-
-
-startServer(); 
+// Start our server
+app.listen(PORT, () => { // port is passed here
+  
+  console.log(`Server is running on http://localhost:${PORT}`);
+  console.log() // blank log to make console out more readable
+});
