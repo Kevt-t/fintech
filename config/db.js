@@ -1,16 +1,37 @@
-import { Sequelize } from 'sequelize';  // Sequelize for interacting with MySQL
-import 'dotenv/config'; // To load environment variables from the .env file
+import { Sequelize } from 'sequelize';
+import 'dotenv/config';
 
-// Create Sequelize instance with MySQL configuration
+console.log('Connecting to database...');
+
 const sequelize = new Sequelize(
-  process.env.DB_NAME,
-  process.env.DB_USER,
-  process.env.DB_PASSWORD,
+  process.env.DB_NAME, 
+  process.env.DB_USER, 
+  process.env.DB_PASSWORD, 
   {
     host: process.env.DB_HOST,
-    dialect: 'mysql',
-    logging: false, // Disable verbose logging in production for cleaner output
+    dialect: process.env.DB_DIALECT || 'mysql', 
+    logging: true, 
+    pool: {
+      max: 5,
+      min: 0,
+      acquire: 30000, 
+      idle: 10000,
+    },
   }
 );
+
+// Authenticate and synchronize the database
+(async () => {
+  try {
+    await sequelize.authenticate();
+    console.log('Connection has been established successfully.');
+
+    // Sync models to the database
+    await sequelize.sync({ force: true }); // Adjust options as needed
+    console.log('Database synchronized successfully.');
+  } catch (error) {
+    console.error('Unable to connect to the database or synchronize:', error);
+  }
+})();
 
 export default sequelize;
