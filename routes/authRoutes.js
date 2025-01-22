@@ -24,7 +24,13 @@ router.post('/signup', async (req, res) => {
     // Check if the email is already registered
     const existingUser  = await User.findOne({ where: { email } });
     if (existingUser ) {
-      return res.status(400).send('Email is already registered.'); // Respond with an error if email is already in use
+      return res.status(400).send('Email is already registered into the database. Try another one'); // Respond with an error if email is already in use
+    }
+
+    // Check if the username is already used
+    const usernameTaken  = await User.findOne({ where: { username } });
+    if (usernameTaken) {
+      return res.status(400).send('This username is already taken. Try another one'); // Respond with an error if username is already in use
     }
 
     // Create a new user in the database
